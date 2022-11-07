@@ -1,0 +1,83 @@
+<!-- Can be accessed as https://3.137.162.168/notification -->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+<body>
+    <h2>Firebase Web Push Notification Example</h2>
+
+    <p id="token"></p>
+
+    <script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-messaging.js"></script>
+    <script>
+
+        //these credentials will be from Firebase console
+        var firebaseConfig = {
+            apiKey: "AIzaSyA8IYhffI_8FfFmK_aDsifm5T-_VQmAsrI",
+            authDomain: "web-push-notifications-c77c2.firebaseapp.com",
+            projectId: "web-push-notifications-c77c2",
+            storageBucket: "web-push-notifications-c77c2.appspot.com",
+            messagingSenderId: "463854387476",
+            appId: "1:463854387476:web:ac4e2df2aa5e95496e4201",
+            measurementId: "G-1LLPGDZ1QK"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const messaging = firebase.messaging();
+
+        function IntitalizeFireBaseMessaging() {
+
+            //can call the requestPermission method again if permission was denied
+
+            messaging
+                .requestPermission()
+                .then(function () {
+                    console.log("Notification Permission");
+                    return messaging.getToken();
+                })
+                .then(function (token) {
+                    console.log("Token : " + token);
+                    document.getElementById("token").innerHTML = token;
+                })
+                .catch(function (reason) {
+                    console.log(reason);
+                });
+        }
+
+        messaging.onMessage(function (payload) {
+            console.log(payload);
+            const notificationOption = {
+                body: payload.notification.body,
+                icon: payload.notification.icon
+            };
+
+            if (Notification.permission === "granted") {
+                var notification = new Notification(payload.notification.title, notificationOption);
+
+                notification.onclick = function (ev) {
+                    ev.preventDefault();
+                    window.open(payload.notification.click_action, '_blank');
+                    notification.close();
+                }
+            }
+
+        });
+        messaging.onTokenRefresh(function () {
+            messaging.getToken()
+                .then(function (newtoken) {
+                    console.log("New Token : " + newtoken);
+                })
+                .catch(function (reason) {
+                    console.log(reason);
+                })
+        })
+        IntitalizeFireBaseMessaging();
+    </script>
+</body>
+
+</html>
